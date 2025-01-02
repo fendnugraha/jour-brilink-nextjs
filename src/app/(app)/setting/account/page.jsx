@@ -13,13 +13,14 @@ export default function Account() {
     const [account, setAccount] = useState(null)
     const [selectedAccount, setSelectedAccount] = useState([])
     const [selectedUpdateAccount, setSelectedUpdateAccount] = useState(null)
+    const [selectedAccountID, setselectedAccountID] = useState(null)
     const [notification, setNotification] = useState('')
     const [errors, setErrors] = useState([]) // Store validation errors
     const [isModalCreateAccountOpen, setIsModalCreateAccountOpen] = useState(false)
     const [isModalUpdateAccountOpen, setIsModalUpdateAccountOpen] = useState(false)
 
     // Fetch Accounts
-    const fetchAccount = async (url = '/api/auth/accounts') => {
+    const fetchAccount = async (url = '/api/accounts') => {
         try {
             const response = await axios.get(url)
             setAccount(response.data.data)
@@ -30,7 +31,7 @@ export default function Account() {
 
     const handleDeleteAccount = async id => {
         try {
-            const response = await axios.delete(`api/auth/accounts/${id}`)
+            const response = await axios.delete(`api/accounts/${id}`)
             setNotification(response.data.message)
             fetchAccount()
         } catch (error) {
@@ -59,7 +60,7 @@ export default function Account() {
 
     const handleShowAccount = async id => {
         try {
-            const response = await axios.get(`api/auth/accounts/${id}`)
+            const response = await axios.get(`api/accounts/${id}`)
             setSelectedUpdateAccount(response.data.data)
             setIsModalUpdateAccountOpen(true)
         } catch (error) {
@@ -68,9 +69,20 @@ export default function Account() {
         }
     }
 
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (selectedAccountID) {
+                handleShowAccount(selectedAccountID)
+            }
+        }, 300)
+
+        // Cleanup the timeout if selectedAccountID changes before the delay is complete
+        return () => clearTimeout(handler)
+    }, [selectedAccountID])
+
     const handleDeleteSelectedAccounts = async () => {
         try {
-            const response = await axios.delete(`api/auth/delete-selected-account`, { data: { ids: selectedAccount } })
+            const response = await axios.delete(`api/delete-selected-account`, { data: { ids: selectedAccount } })
             setNotification(response.data.message)
             fetchAccount()
             setSelectedAccount([])
@@ -80,13 +92,7 @@ export default function Account() {
     }
 
     useEffect(() => {
-        fetchAccount('/api/auth/accounts')
-    }, [])
-
-    useEffect(() => {
-        // console.log(selectedUpdateAccount)
-
-        handleShowAccount()
+        fetchAccount('/api/accounts')
     }, [])
 
     useEffect(() => {
@@ -105,6 +111,18 @@ export default function Account() {
         fetchAccount(url)
     }
 
+    const handleUpdateAccount = async () => {
+        // console.log(selectedUpdateAccount.acc_name)
+
+        try {
+            const response = await axios.put(`api/accounts/${selectedUpdateAccount.id}`, selectedUpdateAccount)
+            setNotification(response.data.message)
+            fetchAccount()
+            closeModal()
+        } catch (error) {
+            setErrors(error.response?.data?.errors || ['Something went wrong.'])
+        }
+    }
     return (
         <>
             <Header title="Account" />
@@ -191,6 +209,9 @@ export default function Account() {
                                                 placeholder="0"
                                             />
                                         </div>
+                                        <button className="btn-primary" onClick={handleUpdateAccount}>
+                                            Update Account
+                                        </button>
                                     </Modal>
                                 )}
                             </div>
@@ -241,7 +262,6 @@ export default function Account() {
                                                     <div className="flex justify-center gap-2">
                                                         <button
                                                             onClick={() => {
-                                                                setIsModalUpdateAccountOpen(true)
                                                                 handleShowAccount(account.id)
                                                             }}
                                                             className="">

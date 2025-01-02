@@ -15,7 +15,7 @@ const RootLayout = ({ children }) => {
 }
 
 export const metadata = {
-    title: 'Jour Service Edition',
+    title: 'Jour Brilink Edition',
 }
 
 export default RootLayout

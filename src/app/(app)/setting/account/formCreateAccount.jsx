@@ -13,7 +13,7 @@ const FormCreateAccount = ({ isModalOpen, notification, fetchAccount }) => {
 
     const fetchCategoryAccount = async () => {
         try {
-            const response = await axios.get('api/auth/category-accounts')
+            const response = await axios.get('api/category-accounts')
             setCategoryAccount(response.data.data)
         } catch (error) {
             setErrors(error.response?.message || ['Something went wrong.'])
@@ -27,7 +27,7 @@ const FormCreateAccount = ({ isModalOpen, notification, fetchAccount }) => {
     const handleCreateAccount = async e => {
         e.preventDefault()
         try {
-            const response = await axios.post('/api/auth/accounts', newAccount)
+            const response = await axios.post('/api/accounts', newAccount)
             notification(response.data.message)
             if (response.status === 201) {
                 // Reset form fields and close modal on success
