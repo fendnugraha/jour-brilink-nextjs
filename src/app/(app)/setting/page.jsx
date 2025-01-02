@@ -37,7 +37,9 @@ export default function Setting() {
                                     <h1 className="text-5xl sm:text-8xl font-bold text-center">
                                         <BuildingLibraryIcon className="w-24 h-24" />
                                     </h1>
-                                    <Link href="/" className="sm:absolute hover:underline hover:font-bold bottom-4 right-5 text-sm rounded-full">
+                                    <Link
+                                        href="/setting/warehouse"
+                                        className="sm:absolute hover:underline hover:font-bold bottom-4 right-5 text-sm rounded-full">
                                         Warehouse <span className="hidden sm:inline">Management</span>
                                         <ArrowRightIcon className="w-4 h-4 inline ml-2" />
                                     </Link>
