@@ -14,7 +14,7 @@
     }
 
     .table {
-        @apply min-w-full divide-y divide-gray-200 text-xs sm:text-sm;
+        @apply divide-y divide-gray-200 text-xs sm:text-sm;
     }
 
     .table th,

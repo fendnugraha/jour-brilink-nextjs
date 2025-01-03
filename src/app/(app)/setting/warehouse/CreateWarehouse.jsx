@@ -1,56 +1,106 @@
-import { useState } from 'react'
+import Input from '@/components/Input'
+import Label from '@/components/Label'
+import { useState, useEffect } from 'react'
+import axios from '@/lib/axios'
 
-const CreateWarehouse = () => {
+const CreateWarehouse = ({ isModalOpen, notification, fetchWarehouses }) => {
     const [formData, setFormData] = useState({
-        prefix: '',
+        code: '',
         name: '',
         address: '',
+        acc_code: '',
     })
+    const [cashBank, setCashBank] = useState([])
 
     const [errors, setErrors] = useState({
-        prefix: '',
+        code: '',
         name: '',
         address: '',
+        acc_code: '',
     })
 
-    const handleChange = e => {
-        const { name, value } = e.target
-        setFormData({
-            ...formData,
-            [name]: value,
-        })
-        setErrors({
-            ...errors,
-            [name]: value ? '' : `The ${name} field is required`,
-        })
-    }
+    useEffect(() => {
+        const fetchCashBank = async () => {
+            try {
+                const response = await axios.get('/api/get-cash-and-bank')
+                setCashBank(response.data.data)
+            } catch (error) {
+                setErrors(error.response?.data?.errors || ['Something went wrong.'])
+            }
+        }
+        fetchCashBank()
+    }, [])
 
-    const handleSubmit = e => {
+    const handleSubmit = async e => {
         e.preventDefault()
-        // Handle form submission logic here
-        console.log('Form data submitted:', formData)
+        try {
+            const response = await axios.post('/api/warehouse', formData)
+            isModalOpen(false)
+            fetchWarehouses()
+            notification(response.data.message)
+        } catch (error) {
+            setErrors(error.response?.data?.errors || ['Something went wrong.'])
+            notification('Failed to create warehouse.', 'error')
+            isModalOpen(false)
+            fetchWarehouses()
+        }
     }
 
     return (
         <div>
-            <h2>Create Warehouse</h2>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="prefix">Warehouse Prefix:</label>
-                    <input type="text" id="prefix" name="prefix" value={formData.prefix} onChange={handleChange} required />
-                    {errors.prefix && <span>{errors.prefix}</span>}
+            <form>
+                <div className="mb-3">
+                    <Label htmlFor="code">Warehouse code:</Label>
+                    <Input
+                        type="text"
+                        className={''}
+                        value={formData.code}
+                        onChange={e => setFormData({ ...formData, code: e.target.value })}
+                        placeholder="Contoh: HQT"
+                        required
+                    />
+                    {errors.code && <span>{errors.code}</span>}
                 </div>
-                <div>
-                    <label htmlFor="name">Warehouse Name:</label>
-                    <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required />
+                <div className="mb-3">
+                    <Label htmlFor="name">Warehouse Name:</Label>
+                    <Input type="text" className={'w-full'} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
                     {errors.name && <span>{errors.name}</span>}
                 </div>
-                <div>
-                    <label htmlFor="address">Address:</label>
-                    <input type="text" id="address" name="address" value={formData.address} onChange={handleChange} required />
+                <div className="mb-3">
+                    <Label htmlFor="address">Address:</Label>
+                    <textarea
+                        type="text"
+                        className={'w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'}
+                        value={formData.address}
+                        onChange={e => setFormData({ ...formData, address: e.target.value })}
+                        required
+                    />
                     {errors.address && <span>{errors.address}</span>}
                 </div>
-                <button type="submit">Create Warehouse</button>
+                <div className="mb-3">
+                    <Label htmlFor="cash_bank">Cash/Bank:</Label>
+                    <select
+                        name="cash_bank"
+                        id="cash_bank"
+                        className="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                        onChange={e =>
+                            setFormData({
+                                ...formData,
+                                acc_code: e.target.value,
+                            })
+                        }
+                        required>
+                        <option value="">Select Cash/Bank</option>
+                        {cashBank.map((item, index) => (
+                            <option key={index} value={item.id}>
+                                {item.acc_name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <button onClick={handleSubmit} className="px-6 py-3 bg-slate-500 mt-4 rounded-lg text-white">
+                    Submit
+                </button>
             </form>
         </div>
     )

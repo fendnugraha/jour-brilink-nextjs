@@ -4,9 +4,12 @@ import Header from '@/app/(app)/Header'
 import Modal from '@/components/Modal'
 import Paginator from '@/components/Paginator'
 import axios from '@/lib/axios'
-import { PlusCircleIcon } from '@heroicons/react/24/solid'
+import { EyeIcon, MapPinIcon, PencilSquareIcon, PlusCircleIcon, TrashIcon } from '@heroicons/react/24/solid'
 import { useState, useEffect } from 'react'
 import CreateWarehouse from './CreateWarehouse'
+import formatDateTime from '@/lib/formatDateTime'
+import Notification from '@/components/notification'
+import Link from 'next/link'
 
 const Warehouse = () => {
     const [warehouses, setWarehouses] = useState([])
@@ -31,11 +34,15 @@ const Warehouse = () => {
         fetchWarehouses()
         setLoading(false)
     }, [])
-    console.log(warehouses)
+
+    const handleChangePage = url => {
+        fetchWarehouses(url)
+    }
     return (
         <>
             <Header title="Warehouse" />
             <div className="py-12">
+                {notification && <Notification notification={notification} onClose={() => setNotification('')} />}
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                         <div className="flex justify-end gap-2">
@@ -44,19 +51,16 @@ const Warehouse = () => {
                             </button>
                             <Modal isOpen={isModalCreateWarehouseOpen} onClose={closeModal} modalTitle="Create warehouse">
                                 <CreateWarehouse
-                                    isModalOpen={isModalCreateWarehouseOpen}
+                                    isModalOpen={setIsModalCreateWarehouseOpen}
                                     notification={message => setNotification(message)}
                                     fetchWarehouses={fetchWarehouses}
                                 />
                             </Modal>
                         </div>
-                        <table className="table">
+                        <table className="table w-full">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
                                     <th>Warehouse Name</th>
-                                    <th>Address</th>
-                                    <th>Created At</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -68,19 +72,33 @@ const Warehouse = () => {
                                 ) : (
                                     warehouses?.data?.map(warehouse => (
                                         <tr key={warehouse.id}>
-                                            <td>{warehouse.id}</td>
-                                            <td>{warehouse.name}</td>
-                                            <td>{warehouse.address}</td>
-                                            <td>{warehouse.created_at}</td>
                                             <td>
-                                                <button className="btn-primary">Edit</button>
-                                                <button className="btn-danger">Delete</button>
+                                                <span className="font-bold text-green-600">{warehouse.name}</span>
+                                                <span className="block text-xs">
+                                                    {warehouse.code} | {warehouse.chart_of_account.acc_name} | {formatDateTime(warehouse.created_at)}
+                                                </span>
+                                                <span className="block text-xs">
+                                                    <MapPinIcon className="w-4 h-4 inline" /> {warehouse.address}
+                                                </span>
+                                            </td>
+                                            <td className="w-32">
+                                                <div className="flex gap-2">
+                                                    <Link
+                                                        className="bg-blue-600 hover:bg-blue-400 p-2 rounded-lg text-white"
+                                                        href={`/setting/warehouse/detail/${warehouse.id}`}>
+                                                        <EyeIcon className="size-5" />
+                                                    </Link>
+                                                    <button className="bg-red-600 hover:bg-red-400 p-2 rounded-lg text-white">
+                                                        <TrashIcon className="size-5" />
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
                                 )}
                             </tbody>
                         </table>
+                        {warehouses?.links && <Paginator links={warehouses} handleChangePage={handleChangePage} />}
                     </div>
                 </div>
             </div>
