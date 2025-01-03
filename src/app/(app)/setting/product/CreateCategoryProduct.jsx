@@ -13,7 +13,7 @@ const CreateCategoryProduct = ({ isModalOpen, notification, fetchProducts }) => 
     const handleCreateCategoryProduct = async e => {
         e.preventDefault()
         try {
-            const response = await axios.post('/api/auth/product-categories', newCategoryProduct)
+            const response = await axios.post('/api/product-categories', newCategoryProduct)
             notification(response.data.message)
             if (response.status === 201) {
                 // Reset form fields and close modal on success

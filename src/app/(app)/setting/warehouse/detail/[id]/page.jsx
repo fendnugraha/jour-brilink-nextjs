@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react'
 import axios from '@/lib/axios'
 import Input from '@/components/Input'
 import Label from '@/components/Label'
-import { LockClosedIcon, MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
+import { KeyIcon, LockClosedIcon, MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 import Notification from '@/components/notification'
 import Pagination from '@/components/PaginateList'
 import Link from 'next/link'
+import { set } from 'date-fns'
 
 const WarehouseDetail = ({ params }) => {
     const [notification, setNotification] = useState(null)
@@ -26,6 +27,11 @@ const WarehouseDetail = ({ params }) => {
         try {
             const response = await axios.get(`/api/warehouse/${params.id}`)
             setWarehouse(response.data.data)
+            setFormData({
+                name: response.data.data.name,
+                address: response.data.data.address,
+                chart_of_account_id: response.data.data.chart_of_account_id,
+            })
         } catch (error) {
             setErrors(error.response?.data?.errors || ['Something went wrong.'])
         }
@@ -52,7 +58,6 @@ const WarehouseDetail = ({ params }) => {
         loadWarehouseData()
     }, [params.id])
 
-    const usedCashBank = cashBank.filter(item => item.warehouse_id == warehouse.id)
     const availableCashBank = cashBank.filter(item => item.warehouse_id === null)
 
     const handleAddCashBank = async id => {
@@ -66,7 +71,7 @@ const WarehouseDetail = ({ params }) => {
     }
 
     const [currentPage, setCurrentPage] = useState(1)
-    const itemsPerPage = 5 // Number of items per page
+    const itemsPerPage = 10 // Number of items per page
 
     // Calculate the total number of pages
     const totalItems = cashBank.length
@@ -79,6 +84,19 @@ const WarehouseDetail = ({ params }) => {
     // Handle page change from the Pagination component
     const handlePageChange = page => {
         setCurrentPage(page)
+    }
+
+    const handleUpdateWarehouse = async e => {
+        e.preventDefault()
+        try {
+            const response = await axios.put(`/api/warehouse/${warehouse.id}`, formData)
+            setNotification(response.data.message)
+            fetchWarehouse()
+        } catch (error) {
+            setErrors(error.response?.data?.errors || ['Something went wrong.'])
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -138,7 +156,9 @@ const WarehouseDetail = ({ params }) => {
                                             </select>
                                         </div>
                                         <div className="mb-4">
-                                            <button className="bg-green-600 px-4 py-2 rounded-lg mr-2 text-white">Update</button>
+                                            <button onClick={handleUpdateWarehouse} className="bg-green-600 px-4 py-2 rounded-lg mr-2 text-white">
+                                                Update
+                                            </button>
                                             <Link href="/setting/warehouse" className="bg-slate-400 px-4 py-2 rounded-lg text-white">
                                                 Kembali
                                             </Link>
@@ -147,25 +167,35 @@ const WarehouseDetail = ({ params }) => {
                                 </div>
                             </div>
                             <div className="shadow-sm sm:rounded-lg p-6 bg-white mb-2">
-                                <h1 className="text-xl font-bold mb-4">Warehouse Cash & Bank List</h1>
+                                <h1 className="text-xl font-bold mb-4">Cash & Bank List</h1>
                                 <div>
                                     <table className="table w-3/4">
                                         <tbody>
                                             {currentItems.map(item => (
                                                 <tr key={item.id}>
-                                                    <td>{item.acc_name}</td>
+                                                    <td>
+                                                        {item.acc_name}
+                                                        <span className="text-xs text-blue-300 block">{item.warehouse?.name}</span>
+                                                    </td>
                                                     <td className="text-center">
                                                         <span className="text-xs flex justify-center items-center">
                                                             {warehouse.chart_of_account_id == item.id ? (
                                                                 <button>
-                                                                    <LockClosedIcon className="size-5 text-slate-600" />
+                                                                    <KeyIcon className="size-8 text-red-600" />
                                                                 </button>
                                                             ) : (
-                                                                <button onClick={() => handleAddCashBank(item.id)}>
-                                                                    <div
-                                                                        className={`p-1 w-12 rounded-full flex ${item.warehouse_id ? 'justify-end bg-blue-500' : 'justify-start bg-slate-400'}`}>
-                                                                        <div className="bg-white w-4 h-4 rounded-full"></div>
-                                                                    </div>
+                                                                <button
+                                                                    onClick={() => handleAddCashBank(item.id)}
+                                                                    disabled={item.warehouse_id !== warehouse.id && item.warehouse_id !== null ? true : false}
+                                                                    className="disabled:cursor-not-allowed">
+                                                                    {item.warehouse_id !== warehouse.id && item.warehouse_id !== null ? (
+                                                                        <LockClosedIcon className="size-5 text-slate-600" />
+                                                                    ) : (
+                                                                        <div
+                                                                            className={`p-1 w-12 rounded-full flex ${item.warehouse_id ? 'justify-end bg-blue-500' : 'justify-start bg-slate-400'}`}>
+                                                                            <div className="bg-white w-4 h-4 rounded-full"></div>
+                                                                        </div>
+                                                                    )}
                                                                 </button>
                                                             )}
                                                         </span>
@@ -174,13 +204,15 @@ const WarehouseDetail = ({ params }) => {
                                             ))}
                                         </tbody>
                                     </table>
-                                    <Pagination
-                                        className={'w-3/4'}
-                                        totalItems={totalItems}
-                                        itemsPerPage={itemsPerPage}
-                                        currentPage={currentPage}
-                                        onPageChange={handlePageChange}
-                                    />
+                                    {totalPages > 1 && (
+                                        <Pagination
+                                            className={'w-3/4'}
+                                            totalItems={totalItems}
+                                            itemsPerPage={itemsPerPage}
+                                            currentPage={currentPage}
+                                            onPageChange={handlePageChange}
+                                        />
+                                    )}
                                 </div>
                             </div>
                         </div>

@@ -46,6 +46,8 @@ const CreateWarehouse = ({ isModalOpen, notification, fetchWarehouses }) => {
         }
     }
 
+    const availableCashBank = cashBank.filter(item => item.warehouse_id === null)
+
     return (
         <div>
             <form>
@@ -91,7 +93,7 @@ const CreateWarehouse = ({ isModalOpen, notification, fetchWarehouses }) => {
                         }
                         required>
                         <option value="">Select Cash/Bank</option>
-                        {cashBank.map((item, index) => (
+                        {availableCashBank.map((item, index) => (
                             <option key={index} value={item.id}>
                                 {item.acc_name}
                             </option>

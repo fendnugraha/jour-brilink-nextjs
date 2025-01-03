@@ -4,7 +4,7 @@ import Header from '@/app/(app)/Header'
 import Paginator from '@/components/Paginator'
 import axios from '@/lib/axios'
 import { useState, useEffect } from 'react'
-import { PencilSquareIcon, PlusCircleIcon, TrashIcon } from '@heroicons/react/24/solid'
+import { EyeIcon, PencilSquareIcon, PlusCircleIcon, TrashIcon } from '@heroicons/react/24/solid'
 import Input from '@/components/Input'
 import FormCreateAccount from '../account/formCreateAccount'
 import Modal from '@/components/Modal'
@@ -25,7 +25,7 @@ export default function Product() {
     //     useState(false)
 
     // Fetch Accounts
-    const fetchProducts = async (url = '/api/auth/products') => {
+    const fetchProducts = async (url = '/api/products') => {
         try {
             const response = await axios.get(url)
             setProduct(response.data.data)
@@ -46,7 +46,7 @@ export default function Product() {
 
     // const handleDeleteAccount = async id => {
     //     try {
-    //         const response = await axios.delete(`api/auth/accounts/${id}`)
+    //         const response = await axios.delete(`api/accounts/${id}`)
     //         setNotification(response.data.message)
     //         fetchAccount()
     //     } catch (error) {
@@ -76,7 +76,7 @@ export default function Product() {
 
     // const handleShowAccount = async id => {
     //     try {
-    //         const response = await axios.get(`api/auth/accounts/${id}`)
+    //         const response = await axios.get(`api/accounts/${id}`)
     //         setSelectedUpdateAccount(response.data.data)
     //         setIsModalUpdateAccountOpen(true)
     //     } catch (error) {
@@ -88,7 +88,7 @@ export default function Product() {
     // const handleDeleteSelectedAccounts = async () => {
     //     try {
     //         const response = await axios.delete(
-    //             `api/auth/delete-selected-account`,
+    //             `api/delete-selected-account`,
     //             { data: { ids: selectedAccount } },
     //         )
     //         setNotification(response.data.message)
@@ -100,7 +100,7 @@ export default function Product() {
     // }
 
     useEffect(() => {
-        fetchProducts('/api/auth/products')
+        fetchProducts('/api/products')
     }, [])
 
     // useEffect(() => {
@@ -160,7 +160,7 @@ export default function Product() {
                                     />
                                 </Modal>
                             </div>
-                            <table className="table">
+                            <table className="table w-full">
                                 <thead>
                                     <tr>
                                         <th className="text-center">#</th>
@@ -192,9 +192,15 @@ export default function Product() {
                                                 <td>{product.category}</td>
                                                 <td>{formatNumber(product.price)}</td>
                                                 <td>{product.end_stock}</td>
-                                                <td className="flex justify-center">
-                                                    <button className="btn-primary mr-2">Edit</button>
-                                                    <button className="btn-primary">Delete</button>
+                                                <td className="">
+                                                    <span className="flex justify-center">
+                                                        <button className="bg-indigo-500 py-2 px-4 rounded-lg text-white mr-2">
+                                                            <EyeIcon className="size-4" />
+                                                        </button>
+                                                        <button className="bg-red-600 py-2 px-4 rounded-lg text-white">
+                                                            <TrashIcon className="size-4" />
+                                                        </button>
+                                                    </span>
                                                 </td>
                                             </tr>
                                         ))

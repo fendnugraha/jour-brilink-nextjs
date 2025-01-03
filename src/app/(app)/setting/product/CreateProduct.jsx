@@ -15,7 +15,7 @@ const CreateProduct = ({ isModalOpen, notification, fetchProducts }) => {
 
     const fetchProductCategories = async () => {
         try {
-            const response = await axios.get('api/auth/product-categories')
+            const response = await axios.get('api/product-categories')
             setProductCategories(response.data.data)
         } catch (error) {
             setErrors(error.response?.message || ['Something went wrong.'])
@@ -29,7 +29,7 @@ const CreateProduct = ({ isModalOpen, notification, fetchProducts }) => {
     const handleCreateProduct = async e => {
         e.preventDefault()
         try {
-            const response = await axios.post('/api/auth/products', newProduct)
+            const response = await axios.post('/api/products', newProduct)
             notification(response.data.message)
             if (response.status === 201) {
                 // Reset form fields and close modal on success

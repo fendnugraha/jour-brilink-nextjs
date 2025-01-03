@@ -18,7 +18,13 @@ const Warehouse = () => {
     const [isModalCreateWarehouseOpen, setIsModalCreateWarehouseOpen] = useState(false)
     const [notification, setNotification] = useState(null)
     const [errors, setErrors] = useState([]) // Store validation errors
-    const closeModal = () => setIsModalCreateWarehouseOpen(false)
+    const [isModalConfirmAlertOpen, setIsModalConfirmAlertOpen] = useState(false)
+    const [selectedWarehouseId, setSelectedWarehouseId] = useState(null)
+    const closeModal = () => {
+        setIsModalCreateWarehouseOpen(false)
+        setIsModalConfirmAlertOpen(false)
+        setSelectedWarehouseId(null)
+    }
 
     const fetchWarehouses = async (url = '/api/warehouse') => {
         setLoading(true)
@@ -38,6 +44,27 @@ const Warehouse = () => {
     const handleChangePage = url => {
         fetchWarehouses(url)
     }
+
+    const handleDeleteWarehouse = async id => {
+        try {
+            const response = await axios.delete(`/api/warehouse/${id}`)
+            setNotification(response.data.message)
+            fetchWarehouses()
+        } catch (error) {
+            setErrors(error.response?.data?.errors || ['Something went wrong.'])
+            if (error.response?.status === 403) {
+                setNotification('You are not allowed to delete this warehouse.')
+            }
+        }
+    }
+
+    const handleModalConfirmAlert = () => {
+        if (selectedWarehouseId) {
+            handleDeleteWarehouse(selectedWarehouseId)
+        }
+        closeModal()
+    }
+
     return (
         <>
             <Header title="Warehouse" />
@@ -45,7 +72,7 @@ const Warehouse = () => {
                 {notification && <Notification notification={notification} onClose={() => setNotification('')} />}
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        <div className="flex justify-end gap-2">
+                        <div className="flex justify-start gap-2">
                             <button className="btn-primary" onClick={() => setIsModalCreateWarehouseOpen(true)}>
                                 Tambah Gudang <PlusCircleIcon className="w-5 h-5 inline" />
                             </button>
@@ -55,6 +82,19 @@ const Warehouse = () => {
                                     notification={message => setNotification(message)}
                                     fetchWarehouses={fetchWarehouses}
                                 />
+                            </Modal>
+                            <Modal isOpen={isModalConfirmAlertOpen} onClose={closeModal} modalTitle="Delete warehouse">
+                                <div className="text-center">
+                                    <p>Are you sure you want to delete this warehouse?</p>
+                                    <div className="flex justify-center gap-2 mt-4">
+                                        <button onClick={handleModalConfirmAlert} className="bg-indigo-600 hover:bg-indigo-500 py-2 px-6 rounded-lg text-white">
+                                            Yes
+                                        </button>
+                                        <button onClick={closeModal} className="bg-indigo-200 hover:bg-indigo-300 py-2 px-6 rounded-lg text-white">
+                                            No
+                                        </button>
+                                    </div>
+                                </div>
                             </Modal>
                         </div>
                         <table className="table w-full">
@@ -81,6 +121,7 @@ const Warehouse = () => {
                                                     <MapPinIcon className="w-4 h-4 inline" /> {warehouse.address}
                                                 </span>
                                             </td>
+
                                             <td className="w-32">
                                                 <div className="flex gap-2">
                                                     <Link
@@ -88,7 +129,13 @@ const Warehouse = () => {
                                                         href={`/setting/warehouse/detail/${warehouse.id}`}>
                                                         <EyeIcon className="size-5" />
                                                     </Link>
-                                                    <button className="bg-red-600 hover:bg-red-400 p-2 rounded-lg text-white">
+                                                    <button
+                                                        // onClick={() => handleDeleteWarehouse(warehouse.id)}
+                                                        onClick={() => {
+                                                            setSelectedWarehouseId(warehouse.id)
+                                                            setIsModalConfirmAlertOpen(true)
+                                                        }}
+                                                        className="bg-red-600 hover:bg-red-400 p-2 rounded-lg text-white">
                                                         <TrashIcon className="size-5" />
                                                     </button>
                                                 </div>
