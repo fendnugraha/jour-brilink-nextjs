@@ -13,6 +13,7 @@ import {
     ChartPieIcon,
     Cog6ToothIcon,
     DocumentChartBarIcon,
+    MapPinIcon,
     ShoppingBagIcon,
     Square2StackIcon,
     UserCircleIcon,
@@ -25,25 +26,25 @@ const Navigation = ({ user }) => {
     const toggleNavbar = () => {
         setIsOpen(!isOpen)
     }
-
-    const [open, setOpen] = useState(false)
-
     return (
         <nav className={`bg-white text-gray-600 hidden sm:block min-h-screen transition-all ${isOpen ? 'w-64' : 'w-16'} flex flex-col`}>
-            <div className="h-[72px] px-4 text-gray-500 flex items-center justify-start gap-4 cursor-pointer">
+            <div className="h-[72px] px-4 text-gray-500 flex items-center justify-start gap-4 cursor-pointer border-b">
                 <div className="h-full flex items-center" onClick={toggleNavbar}>
                     <Bars3Icon className="w-8 h-8" />
                 </div>
                 <div
                     className={`transition-all duration-300 ease-in-out transform text-nowrap ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
                     style={{ display: isOpen ? 'inline' : 'none' }}>
-                    <h1 className="font-bold">
-                        <UserCircleIcon className="w-6 h-6 inline" /> {user.email}{' '}
-                    </h1>
+                    <h1 className="font-bold">JOUR APPS</h1>
                 </div>
             </div>
             <nav className="flex-1">
-                <div className="mt-4 text-sm">
+                <div className=" text-sm">
+                    <div
+                        className={`justify-center items-center p-4 border-b font-bold overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'scale-100' : 'scale-0'}`}
+                        style={{ display: isOpen ? 'flex' : 'none' }}>
+                        <MapPinIcon className="w-5 h-5 inline" /> {user?.role?.warehouse?.name}
+                    </div>
                     <NavLink href="/dashboard" isOpen={isOpen} active={usePathname() === '/dashboard'}>
                         <div className="">
                             <ChartPieIcon className="w-5 h-5" />

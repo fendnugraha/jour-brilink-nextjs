@@ -1,10 +1,12 @@
 import { Bars3Icon } from '@heroicons/react/24/solid'
 
-const Header = ({ title, isOpen }) => {
+const Header = ({ title, isOpen, user }) => {
     return (
         <>
-            <header className={`h-[72px] px-4 md:px-6 flex justify-between items-center border-b sm:bg-transparent bg-white`}>
-                <h1 className="text-xl font-bold">{title}</h1>
+            <header className={`h-[72px] px-4 md:px-6 flex justify-between items-center border-b bg-white`}>
+                <h1 className="text-xl font-bold">
+                    {title} {user?.name}
+                </h1>
                 <Bars3Icon className="w-8 h-8 sm:hidden" onClick={isOpen} />
             </header>
             <div

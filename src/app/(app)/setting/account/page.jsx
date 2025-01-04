@@ -215,7 +215,7 @@ export default function Account() {
                                     </Modal>
                                 )}
                             </div>
-                            <table className="table">
+                            <table className="table w-full">
                                 <thead>
                                     <tr>
                                         <th className="">

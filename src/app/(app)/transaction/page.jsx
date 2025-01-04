@@ -33,7 +33,7 @@ const Transaction = ({ user }) => {
     }, [])
     return (
         <>
-            <Header title="Transaction" />
+            <Header title="Transaction" user={user} />
             <div className="py-12">
                 {notification && <Notification notification={notification} onClose={() => setNotification('')} />}
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">

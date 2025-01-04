@@ -10,7 +10,6 @@ const AppLayout = ({ children }) => {
     if (!user) {
         return <Loading />
     }
-
     return (
         <div className="flex h-screen w-screen overflow-hidden">
             <Navigation user={user} />
