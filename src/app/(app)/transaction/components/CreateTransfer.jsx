@@ -43,7 +43,7 @@ const CreateTransfer = ({ isModalOpen, notification, fetchJournals, user }) => {
             fetchJournals()
             isModalOpen(false)
         } catch (error) {
-            setErrors(error.response.data.errors)
+            setErrors(error.response.data.errors || ['Something went wrong.'])
         }
     }
     return (
