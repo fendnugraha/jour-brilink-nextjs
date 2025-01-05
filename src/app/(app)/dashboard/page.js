@@ -2,7 +2,7 @@
 import Header from '@/app/(app)/Header'
 import Modal from '@/components/Modal'
 import { PlusCircleIcon } from '@heroicons/react/24/solid'
-import CreateOrderForm from '../transaction/CreateOrderForm'
+import CreateOrderForm from '../transaction/components/CreateOrderForm'
 import { useEffect, useState } from 'react'
 import Notification from '@/components/notification'
 import OrderTable from './OrderTable'

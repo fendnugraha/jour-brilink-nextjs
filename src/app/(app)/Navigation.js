@@ -66,7 +66,7 @@ const Navigation = ({ user }) => {
                                 isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
                             }`}
                             style={{ display: isOpen ? 'inline' : 'none' }}>
-                            Order list
+                            Jurnal
                         </span>
                     </NavLink>
                     <NavLink href="/setting/product" isOpen={isOpen} active={usePathname() === '/setting/product'}>

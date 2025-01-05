@@ -10,18 +10,21 @@ import CreateWarehouse from './CreateWarehouse'
 import formatDateTime from '@/lib/formatDateTime'
 import Notification from '@/components/notification'
 import Link from 'next/link'
+import FormCreateAccount from '../account/formCreateAccount'
 
 const Warehouse = () => {
     const [warehouses, setWarehouses] = useState([])
     const [loading, setLoading] = useState(true)
     const [page, setPage] = useState(1)
     const [isModalCreateWarehouseOpen, setIsModalCreateWarehouseOpen] = useState(false)
+    const [isModalCreateAccountOpen, setIsModalCreateAccountOpen] = useState(false)
     const [notification, setNotification] = useState(null)
     const [errors, setErrors] = useState([]) // Store validation errors
     const [isModalConfirmAlertOpen, setIsModalConfirmAlertOpen] = useState(false)
     const [selectedWarehouseId, setSelectedWarehouseId] = useState(null)
     const closeModal = () => {
         setIsModalCreateWarehouseOpen(false)
+        setIsModalCreateAccountOpen(false)
         setIsModalConfirmAlertOpen(false)
         setSelectedWarehouseId(null)
     }
@@ -81,6 +84,16 @@ const Warehouse = () => {
                                     isModalOpen={setIsModalCreateWarehouseOpen}
                                     notification={message => setNotification(message)}
                                     fetchWarehouses={fetchWarehouses}
+                                />
+                            </Modal>
+                            <button className="btn-primary" onClick={() => setIsModalCreateAccountOpen(true)}>
+                                Tambah Account <PlusCircleIcon className="w-5 h-5 inline" />
+                            </button>
+                            <Modal isOpen={isModalCreateAccountOpen} onClose={closeModal} modalTitle="Create account">
+                                <FormCreateAccount
+                                    isModalOpen={setIsModalCreateAccountOpen}
+                                    notification={message => setNotification(message)}
+                                    fetchAccount={fetchWarehouses}
                                 />
                             </Modal>
                             <Modal isOpen={isModalConfirmAlertOpen} onClose={closeModal} modalTitle="Delete warehouse">
