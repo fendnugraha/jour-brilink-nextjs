@@ -207,7 +207,7 @@ export default function Product() {
                                     )}
                                 </tbody>
                             </table>
-                            {product?.links && <Paginator links={product} handleChangePage={handleChangePage} />}
+                            {product?.last_page > 1 && <Paginator links={product} handleChangePage={handleChangePage} />}
                         </div>
                     </div>
                 </div>

@@ -5,13 +5,13 @@ export default function Paginator({ links, handleChangePage }) {
                 <button
                     onClick={() => handleChangePage(links?.prev_page_url)}
                     disabled={!links?.prev_page_url}
-                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    className="relative inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                     Previous
                 </button>
                 <button
                     onClick={() => handleChangePage(links?.next_page_url)}
                     disabled={!links?.next_page_url}
-                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    className="ml-3 relative inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                     Next
                 </button>
             </div>
@@ -37,8 +37,8 @@ export default function Paginator({ links, handleChangePage }) {
                                       disabled={!link.url}
                                       className={
                                           link.active
-                                              ? 'z-10 bg-indigo-500 text-white border-indigo-500 scale-110 relative inline-flex items-center px-4 py-2 border text-sm font-bold'
-                                              : 'border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-xs font-medium'
+                                              ? 'z-10 bg-indigo-500 text-white border-indigo-500 scale-110 relative inline-flex items-center px-2 py-1 border text-sm font-bold'
+                                              : 'border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-2 py-1 border text-xs font-medium'
                                       }>
                                       {link.label === '&laquo; Previous' ? (
                                           <svg

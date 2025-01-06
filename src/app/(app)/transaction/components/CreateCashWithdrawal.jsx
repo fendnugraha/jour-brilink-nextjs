@@ -4,16 +4,16 @@ import axios from '@/lib/axios'
 import Label from '@/components/Label'
 import Input from '@/components/Input'
 
-const CreateTransfer = ({ isModalOpen, notification, fetchJournals, user }) => {
+const CreateCashWithdrawal = ({ isModalOpen, notification, fetchJournals, user }) => {
     const [cashBank, setCashBank] = useState([])
     const [formData, setFormData] = useState({
-        debt_code: user.role.warehouse.chart_of_account_id,
-        cred_code: '',
+        debt_code: '',
+        cred_code: user.role.warehouse.chart_of_account_id,
         amount: '',
+        trx_type: 'Tarik Tunai',
         fee_amount: '',
-        trx_type: 'Transfer Uang',
         description: '',
-        custName: '',
+        custName: 'XXX',
     })
     const [errors, setErrors] = useState([])
     const fetchCashBank = async () => {
@@ -51,11 +51,11 @@ const CreateTransfer = ({ isModalOpen, notification, fetchJournals, user }) => {
         <>
             <form>
                 <div className="mb-2 grid grid-cols-3 gap-4 items-center">
-                    <Label>Dari Rekening</Label>
+                    <Label>Ke Rekening</Label>
                     <div className="col-span-2">
                         <select
-                            onChange={e => setFormData({ ...formData, cred_code: e.target.value })}
-                            value={formData.cred_code}
+                            onChange={e => setFormData({ ...formData, debt_code: e.target.value })}
+                            value={formData.debt_code}
                             className="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             <option value="">--Pilih Rekening--</option>
                             {cashBank.map(cashBank => (
@@ -64,11 +64,11 @@ const CreateTransfer = ({ isModalOpen, notification, fetchJournals, user }) => {
                                 </option>
                             ))}
                         </select>
-                        {errors.cred_code && <span className="text-red-500 text-xs">{errors.cred_code}</span>}
+                        {errors.debt_code && <span className="text-red-500 text-xs">{errors.debt_code}</span>}
                     </div>
                 </div>
                 <div className="mb-2 grid grid-cols-3 gap-4 items-center">
-                    <Label>Jumlah transfer</Label>
+                    <Label>Jumlah Penarikan</Label>
                     <div className="col-span-2">
                         <Input type="number" placeholder="Rp." value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} />
                         {errors.amount && <span className="text-red-500 text-xs">{errors.amount}</span>}
@@ -85,19 +85,6 @@ const CreateTransfer = ({ isModalOpen, notification, fetchJournals, user }) => {
                             onChange={e => setFormData({ ...formData, fee_amount: e.target.value })}
                         />
                         {errors.fee_amount && <span className="text-red-500 text-xs">{errors.fee_amount}</span>}
-                    </div>
-                </div>
-                <div className="mb-2 grid grid-cols-3 gap-4 items-center">
-                    <Label>Nama Rek. Customer</Label>
-                    <div className="col-span-2">
-                        <Input
-                            className={'w-full'}
-                            type="text"
-                            placeholder="Atasnama"
-                            value={formData.custName}
-                            onChange={e => setFormData({ ...formData, custName: e.target.value })}
-                        />
-                        {errors.custName && <span className="text-red-500 text-xs">{errors.custName}</span>}
                     </div>
                 </div>
                 <div className="mb-2 grid grid-cols-3 gap-4 items-center">
@@ -121,4 +108,4 @@ const CreateTransfer = ({ isModalOpen, notification, fetchJournals, user }) => {
     )
 }
 
-export default CreateTransfer
+export default CreateCashWithdrawal

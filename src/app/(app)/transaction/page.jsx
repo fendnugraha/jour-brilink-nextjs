@@ -8,11 +8,11 @@ import axios from '@/lib/axios'
 import Notification from '@/components/notification'
 import { useAuth } from '@/hooks/auth'
 import Loading from '../Loading'
-import formatNumber from '@/lib/formatNumber'
-import Paginator from '@/components/Paginator'
-import Link from 'next/link'
-import formatDateTime from '@/lib/formatDateTime'
-import { ArrowRightIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid'
+import CreateCashWithdrawal from './components/CreateCashWithdrawal'
+import CreateVoucher from './components/CreateVoucher'
+import JournalTable from './components/JournalTable'
+import Dropdown from '@/components/Dropdown'
+import CreateDeposit from './components/CreateDeposit'
 
 const TransactionPage = () => {
     const { user } = useAuth({ middleware: 'auth' })
@@ -21,10 +21,16 @@ const TransactionPage = () => {
         return <Loading />
     }
     const [journals, setJournals] = useState([])
-    const [isModalddCreateTransferOpen, setIsModalddCreateTransferOpen] = useState(false)
+    const [isModalCreateTransferOpen, setIsModalCreateTransferOpen] = useState(false)
+    const [isModalCreateCashWithdrawalOpen, setIsModalCreateCashWithdrawalOpen] = useState(false)
+    const [isModalCreateDepositOpen, setIsModalCreateDepositOpen] = useState(false)
+    const [isModalCreateVoucherOpen, setIsModalCreateVoucherOpen] = useState(false)
     const [notification, setNotification] = useState('')
     const closeModal = () => {
-        setIsModalddCreateTransferOpen(false)
+        setIsModalCreateTransferOpen(false)
+        setIsModalCreateCashWithdrawalOpen(false)
+        setIsModalCreateDepositOpen(false)
+        setIsModalCreateVoucherOpen(false)
     }
 
     const fetchJournals = async (url = '/api/journals') => {
@@ -51,60 +57,92 @@ const TransactionPage = () => {
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         {notification && <Notification notification={notification} onClose={() => setNotification('')} />}
                         <div className="p-6 bg-white border-b border-gray-200">
-                            <div className="mb-2">
+                            <div className="mb-2 flex justify-start gap-2">
                                 <button
-                                    onClick={() => setIsModalddCreateTransferOpen(true)}
+                                    onClick={() => setIsModalCreateTransferOpen(true)}
                                     className="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-6 rounded-lg">
                                     Tansfer Uang <PlusCircleIcon className="size-4 inline" />
                                 </button>
-                                <Modal isOpen={isModalddCreateTransferOpen} onClose={closeModal} modalTitle="Transfer">
+                                <Modal isOpen={isModalCreateTransferOpen} onClose={closeModal} modalTitle="Transfer Uang">
                                     <CreateTransfer
-                                        isModalOpen={setIsModalddCreateTransferOpen}
+                                        isModalOpen={setIsModalCreateTransferOpen}
                                         notification={message => setNotification(message)}
                                         fetchJournals={fetchJournals}
                                         user={user}
                                     />
                                 </Modal>
+                                <button
+                                    onClick={() => setIsModalCreateCashWithdrawalOpen(true)}
+                                    className="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-6 rounded-lg">
+                                    Tarik Tunai <PlusCircleIcon className="size-4 inline" />
+                                </button>
+                                <Modal isOpen={isModalCreateCashWithdrawalOpen} onClose={closeModal} modalTitle="Tarik Tunai">
+                                    <CreateCashWithdrawal
+                                        isModalOpen={setIsModalCreateCashWithdrawalOpen}
+                                        notification={message => setNotification(message)}
+                                        fetchJournals={fetchJournals}
+                                        user={user}
+                                    />
+                                </Modal>
+                                <Modal isOpen={isModalCreateVoucherOpen} onClose={closeModal} modalTitle="Penjualan Voucher & Kartu">
+                                    <CreateVoucher
+                                        isModalOpen={setIsModalCreateVoucherOpen}
+                                        notification={message => setNotification(message)}
+                                        fetchJournals={fetchJournals}
+                                        user={user}
+                                    />
+                                </Modal>
+                                <Modal isOpen={isModalCreateDepositOpen} onClose={closeModal} modalTitle="Penjualan Deposit">
+                                    <CreateDeposit
+                                        isModalOpen={setIsModalCreateDepositOpen}
+                                        notification={message => setNotification(message)}
+                                        fetchJournals={fetchJournals}
+                                    />
+                                </Modal>
+                                <Dropdown
+                                    trigger={<button className="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-lg">Voucher & Deposit</button>}
+                                    align="left">
+                                    <ul className="min-w-max">
+                                        <li className="border-b hover:bg-slate-100 ">
+                                            <button className="w-full text-left py-2 px-4 " onClick={() => setIsModalCreateVoucherOpen(true)}>
+                                                Voucher & SP
+                                            </button>
+                                        </li>
+                                        <li className="border-b hover:bg-slate-100 ">
+                                            <button className="w-full text-left py-2 px-4" onClick={() => setIsModalCreateDepositOpen(true)}>
+                                                Penjualan Pulsa dll.
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </Dropdown>
+                                <Dropdown
+                                    trigger={<button className="bg-red-500 hover:bg-red-600 text-white py-2 px-6 rounded-lg">Pengeluaran (Biaya)</button>}
+                                    align="left">
+                                    <ul className="min-w-max">
+                                        <li className="border-b hover:bg-slate-100 ">
+                                            <button className="w-full text-left py-2 px-4 " onClick={() => setIsModalCreateCashWithdrawalOpen(true)}>
+                                                Pengembalian Saldo Kas & Bank
+                                            </button>
+                                        </li>
+                                        <li className="border-b hover:bg-slate-100 ">
+                                            <button className="w-full text-left py-2 px-4" onClick={() => setIsModalCreateCashWithdrawalOpen(true)}>
+                                                Biaya Operasional
+                                            </button>
+                                        </li>
+                                        <li className="border-b hover:bg-slate-100 ">
+                                            <button className="w-full text-left py-2 px-4" onClick={() => setIsModalCreateCashWithdrawalOpen(true)}>
+                                                Biaya Admin Bank
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </Dropdown>
                             </div>
-                            <table className="table w-full text-xs mb-2">
-                                <thead className="">
-                                    <tr className="">
-                                        <th className="">Keterangan</th>
-                                        <th>Jumlah</th>
-                                        <th className="hidden sm:table-cell">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {journals.data?.map((journal, index) => (
-                                        <tr className="" key={index}>
-                                            <td className="">
-                                                <span className="text-xs text-slate-500 block">
-                                                    {formatDateTime(journal.created_at)} | {journal.invoice} | {journal.trx_type}
-                                                </span>
-                                                ID: {journal.id} {journal.description}
-                                                <span className="block font-bold text-xs">
-                                                    {journal.cred.acc_name} <ArrowRightIcon className="size-4 inline" /> {journal.debt.acc_name}
-                                                </span>
-                                            </td>
-                                            <td className="font-bold">
-                                                {formatNumber(journal.amount)}
-                                                <span className="text-xs text-blue-600 block">{formatNumber(journal.fee_amount)}</span>
-                                            </td>
-                                            <td className="hidden sm:table-cell">
-                                                <span className="flex justify-center">
-                                                    <button className="bg-indigo-500 hover:bg-indigo-600 py-2 px-4 rounded-lg text-white mr-2">
-                                                        <PencilIcon className="size-4" />
-                                                    </button>
-                                                    <button className="bg-red-600 hover:bg-red-700 py-2 px-4 rounded-lg text-white">
-                                                        <TrashIcon className="size-4" />
-                                                    </button>
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            {journals?.links && <Paginator links={journals} handleChangePage={handleChangePage} />}
+                            <JournalTable
+                                journals={journals}
+                                handleChangePage={handleChangePage}
+                                fetchJournals={fetchJournals}
+                                notification={message => setNotification(message)}
+                            />
                         </div>
                     </div>
                 </div>
