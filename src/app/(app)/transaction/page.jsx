@@ -13,6 +13,9 @@ import CreateVoucher from './components/CreateVoucher'
 import JournalTable from './components/JournalTable'
 import Dropdown from '@/components/Dropdown'
 import CreateDeposit from './components/CreateDeposit'
+import CreateMutationToHq from './components/CreateMutationToHq'
+import CreateBankAdminFee from './components/CreateBankAdminFee'
+import CreateExpense from './components/CreateExpense'
 
 const TransactionPage = () => {
     const { user } = useAuth({ middleware: 'auth' })
@@ -25,12 +28,18 @@ const TransactionPage = () => {
     const [isModalCreateCashWithdrawalOpen, setIsModalCreateCashWithdrawalOpen] = useState(false)
     const [isModalCreateDepositOpen, setIsModalCreateDepositOpen] = useState(false)
     const [isModalCreateVoucherOpen, setIsModalCreateVoucherOpen] = useState(false)
+    const [isModalCreateExpenseOpen, setIsModalCreateExpenseOpen] = useState(false)
+    const [isModalCreateBankAdminFeeOpen, setIsModalCreateBankAdminFeeOpen] = useState(false)
+    const [isModalCreateMutationToHqOpen, setIsModalCreateMutationToHqOpen] = useState(false)
     const [notification, setNotification] = useState('')
     const closeModal = () => {
         setIsModalCreateTransferOpen(false)
         setIsModalCreateCashWithdrawalOpen(false)
         setIsModalCreateDepositOpen(false)
         setIsModalCreateVoucherOpen(false)
+        setIsModalCreateMutationToHqOpen(false)
+        setIsModalCreateBankAdminFeeOpen(false)
+        setIsModalCreateExpenseOpen(false)
     }
 
     const fetchJournals = async (url = '/api/journals') => {
@@ -99,6 +108,32 @@ const TransactionPage = () => {
                                         fetchJournals={fetchJournals}
                                     />
                                 </Modal>
+                                {/* Expenses */}
+                                <Modal isOpen={isModalCreateMutationToHqOpen} onClose={closeModal} modalTitle="Pengembalian Saldo Kas & Bank">
+                                    <CreateMutationToHq
+                                        isModalOpen={setIsModalCreateMutationToHqOpen}
+                                        notification={message => setNotification(message)}
+                                        fetchJournals={fetchJournals}
+                                        user={user}
+                                    />
+                                </Modal>
+                                <Modal isOpen={isModalCreateBankAdminFeeOpen} onClose={closeModal} modalTitle="Biaya Administrasi Bank">
+                                    <CreateBankAdminFee
+                                        isModalOpen={setIsModalCreateBankAdminFeeOpen}
+                                        notification={message => setNotification(message)}
+                                        fetchJournals={fetchJournals}
+                                        user={user}
+                                    />
+                                </Modal>
+                                <Modal isOpen={isModalCreateExpenseOpen} onClose={closeModal} modalTitle="Biaya Operasional">
+                                    <CreateExpense
+                                        isModalOpen={setIsModalCreateExpenseOpen}
+                                        notification={message => setNotification(message)}
+                                        fetchJournals={fetchJournals}
+                                        user={user}
+                                    />
+                                </Modal>
+
                                 <Dropdown
                                     trigger={<button className="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-lg">Voucher & Deposit</button>}
                                     align="left">
@@ -120,17 +155,17 @@ const TransactionPage = () => {
                                     align="left">
                                     <ul className="min-w-max">
                                         <li className="border-b hover:bg-slate-100 ">
-                                            <button className="w-full text-left py-2 px-4 " onClick={() => setIsModalCreateCashWithdrawalOpen(true)}>
+                                            <button className="w-full text-left py-2 px-4 " onClick={() => setIsModalCreateMutationToHqOpen(true)}>
                                                 Pengembalian Saldo Kas & Bank
                                             </button>
                                         </li>
                                         <li className="border-b hover:bg-slate-100 ">
-                                            <button className="w-full text-left py-2 px-4" onClick={() => setIsModalCreateCashWithdrawalOpen(true)}>
+                                            <button className="w-full text-left py-2 px-4" onClick={() => setIsModalCreateExpenseOpen(true)}>
                                                 Biaya Operasional
                                             </button>
                                         </li>
                                         <li className="border-b hover:bg-slate-100 ">
-                                            <button className="w-full text-left py-2 px-4" onClick={() => setIsModalCreateCashWithdrawalOpen(true)}>
+                                            <button className="w-full text-left py-2 px-4" onClick={() => setIsModalCreateBankAdminFeeOpen(true)}>
                                                 Biaya Admin Bank
                                             </button>
                                         </li>

@@ -9,18 +9,25 @@ const CreateDeposit = ({ isModalOpen, notification, fetchJournals }) => {
         cost: '',
         description: '',
     })
-
+    const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState([])
 
     const handleSubmit = async e => {
         e.preventDefault()
+        setLoading(true)
         try {
             const response = await axios.post('/api/create-deposit', formData)
             notification(response.data.message)
             fetchJournals()
-            isModalOpen(false)
+            setFormData({
+                price: '',
+                cost: '',
+                description: '',
+            })
         } catch (error) {
             setErrors(error.response?.data?.errors || ['Something went wrong.'])
+        } finally {
+            setLoading(false)
         }
     }
     return (
@@ -52,8 +59,11 @@ const CreateDeposit = ({ isModalOpen, notification, fetchJournals }) => {
                     {errors.description && <span className="text-red-500 text-xs">{errors.description}</span>}
                 </div>
             </div>
-            <button onClick={handleSubmit} className="bg-indigo-500 hover:bg-indigo-600 rounded-xl px-8 py-3 text-white">
-                Simpan
+            <button
+                onClick={handleSubmit}
+                className="bg-indigo-500 hover:bg-indigo-600 rounded-xl px-8 py-3 text-white disabled:bg-slate-300 disabled:cursor-not-allowed"
+                disabled={loading}>
+                {loading ? 'Loading...' : 'Simpan'}
             </button>
         </form>
     )

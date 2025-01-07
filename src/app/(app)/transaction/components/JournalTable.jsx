@@ -45,7 +45,7 @@ const JournalTable = ({ journals, handleChangePage, fetchJournals, notification 
                                 </td>
                                 <td className="font-bold">
                                     {formatNumber(journal.amount)}
-                                    {journal.fee_amount > 0 && <span className="text-xs text-blue-600 block">{formatNumber(journal.fee_amount)}</span>}
+                                    {journal.fee_amount !== 0 && <span className="text-xs text-blue-600 block">{formatNumber(journal.fee_amount)}</span>}
                                 </td>
                                 <td className="hidden sm:table-cell">
                                     <span className="flex justify-center">
