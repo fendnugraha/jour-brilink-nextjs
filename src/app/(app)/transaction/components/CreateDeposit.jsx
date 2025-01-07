@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Label from '@/components/Label'
 import Input from '@/components/Input'
 
-const CreateDeposit = ({ isModalOpen, notification, fetchJournals }) => {
+const CreateDeposit = ({ isModalOpen, notification, fetchJournalsByWarehouse }) => {
     const [formData, setFormData] = useState({
         price: '',
         cost: '',
@@ -18,7 +18,7 @@ const CreateDeposit = ({ isModalOpen, notification, fetchJournals }) => {
         try {
             const response = await axios.post('/api/create-deposit', formData)
             notification(response.data.message)
-            fetchJournals()
+            fetchJournalsByWarehouse()
             setFormData({
                 price: '',
                 cost: '',

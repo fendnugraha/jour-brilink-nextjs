@@ -4,7 +4,7 @@ import axios from '@/lib/axios'
 import Label from '@/components/Label'
 import Input from '@/components/Input'
 
-const CreateCashWithdrawal = ({ isModalOpen, notification, fetchJournals, user }) => {
+const CreateCashWithdrawal = ({ isModalOpen, notification, fetchJournalsByWarehouse, user }) => {
     const [cashBank, setCashBank] = useState([])
     const [formData, setFormData] = useState({
         debt_code: '',
@@ -16,6 +16,7 @@ const CreateCashWithdrawal = ({ isModalOpen, notification, fetchJournals, user }
         custName: 'XXX',
     })
     const [errors, setErrors] = useState([])
+    const [loading, setLoading] = useState(false)
     const fetchCashBank = async () => {
         try {
             const response = await axios.get(`/api/get-cash-bank-by-warehouse/${user.role.warehouse_id}`)
@@ -31,6 +32,7 @@ const CreateCashWithdrawal = ({ isModalOpen, notification, fetchJournals, user }
 
     const handleSubmit = async e => {
         e.preventDefault()
+        setLoading(true)
         try {
             const response = await axios.post('/api/create-transfer', formData)
             notification(response.data.message)
@@ -41,10 +43,12 @@ const CreateCashWithdrawal = ({ isModalOpen, notification, fetchJournals, user }
                 description: '',
                 custName: '',
             })
-            fetchJournals()
+            fetchJournalsByWarehouse()
             isModalOpen(false)
         } catch (error) {
-            setErrors(error.response.data.errors || ['Something went wrong.'])
+            setErrors(error.response?.data?.errors || ['Something went wrong.'])
+        } finally {
+            setLoading(false)
         }
     }
     return (
@@ -100,8 +104,11 @@ const CreateCashWithdrawal = ({ isModalOpen, notification, fetchJournals, user }
                         {errors.description && <span className="text-red-500 text-xs">{errors.description}</span>}
                     </div>
                 </div>
-                <button onClick={handleSubmit} className="bg-indigo-500 hover:bg-indigo-600 rounded-xl px-8 py-3 text-white">
-                    Simpan
+                <button
+                    onClick={handleSubmit}
+                    className="bg-indigo-500 hover:bg-indigo-600 rounded-xl px-8 py-3 text-white disabled:bg-slate-300 disabled:cursor-not-allowed"
+                    disabled={loading}>
+                    {loading ? 'Loading...' : 'Simpan'}
                 </button>
             </form>
         </>

@@ -5,7 +5,7 @@ import Input from '@/components/Input'
 import formatNumber from '@/lib/formatNumber'
 import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 
-const CreateVoucher = ({ isModalOpen, notification, fetchJournals, user }) => {
+const CreateVoucher = ({ isModalOpen, notification, fetchJournalsByWarehouse, user }) => {
     const [formData, setFormData] = useState({
         product_id: '',
         qty: 1,
@@ -59,7 +59,7 @@ const CreateVoucher = ({ isModalOpen, notification, fetchJournals, user }) => {
         try {
             const response = await axios.post('/api/create-voucher', formData)
             notification(response.data.message)
-            fetchJournals()
+            fetchJournalsByWarehouse()
             setFormData({
                 product_id: '',
                 qty: 1,

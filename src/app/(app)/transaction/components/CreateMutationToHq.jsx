@@ -4,12 +4,13 @@ import axios from '@/lib/axios'
 import Label from '@/components/Label'
 import Input from '@/components/Input'
 
-const CreateMutationToHq = ({ isModalOpen, notification, fetchJournals, user }) => {
+const CreateMutationToHq = ({ isModalOpen, notification, fetchJournalsByWarehouse, user }) => {
     const [cashBank, setCashBank] = useState([])
     const [formData, setFormData] = useState({
         debt_code: '',
         cred_code: '',
         amount: '',
+        fee_amount: 0,
         trx_type: 'Mutasi Kas',
         description: '',
     })
@@ -37,10 +38,11 @@ const CreateMutationToHq = ({ isModalOpen, notification, fetchJournals, user }) 
         try {
             const response = await axios.post('/api/create-mutation', formData)
             notification(response.data.message)
-            fetchJournals()
+            fetchJournalsByWarehouse()
             isModalOpen(false)
         } catch (error) {
             notification(error.response?.data?.message || 'Something went wrong.')
+            setErrors(error.response?.data?.errors)
         } finally {
             setLoading(false)
         }

@@ -28,14 +28,14 @@ const Navigation = ({ user }) => {
     }
     return (
         <nav className={`bg-white text-gray-600 hidden sm:block min-h-screen transition-all ${isOpen ? 'w-64' : 'w-16'} flex flex-col`}>
-            <div className="h-[72px] px-4 text-gray-500 flex items-center justify-start gap-4 cursor-pointer border-b">
+            <div className="h-[72px] px-4 text-gray-500 bg-blue-800 flex items-center justify-start gap-4 cursor-pointer border-b">
                 <div className="h-full flex items-center" onClick={toggleNavbar}>
-                    <Bars3Icon className="w-8 h-8" />
+                    <Bars3Icon className="w-8 h-8 text-white" />
                 </div>
                 <div
                     className={`transition-all duration-300 ease-in-out transform text-nowrap ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
                     style={{ display: isOpen ? 'inline' : 'none' }}>
-                    <h1 className="font-bold">JOUR APPS</h1>
+                    <h1 className="font-bold text-yellow-300">JOUR APPS</h1>
                 </div>
             </div>
             <nav className="flex-1">

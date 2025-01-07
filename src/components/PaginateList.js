@@ -11,6 +11,44 @@ const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange, class
         }
     }
 
+    // Generate the page numbers to display
+    const generatePageNumbers = () => {
+        const pageNumbers = []
+        const range = 2 // Number of pages to display before and after the current page
+
+        if (totalPages <= 5) {
+            // If there are less than or equal to 5 pages, display all pages
+            for (let i = 1; i <= totalPages; i++) {
+                pageNumbers.push(i)
+            }
+        } else {
+            // Always show the first page
+            pageNumbers.push(1)
+
+            // Add ellipsis if necessary
+            if (currentPage - range > 2) {
+                pageNumbers.push('...')
+            }
+
+            // Add pages before and after the current page within the range
+            for (let i = Math.max(2, currentPage - range); i <= Math.min(totalPages - 1, currentPage + range); i++) {
+                pageNumbers.push(i)
+            }
+
+            // Add ellipsis if necessary
+            if (currentPage + range < totalPages - 1) {
+                pageNumbers.push('...')
+            }
+
+            // Always show the last page
+            if (totalPages > 1) {
+                pageNumbers.push(totalPages)
+            }
+        }
+
+        return pageNumbers
+    }
+
     return (
         <div className={`flex justify-between items-center mt-3 ${className}`}>
             <div className="w-1/2 text-slate-500">
@@ -24,14 +62,15 @@ const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange, class
                     Prev
                 </button>
 
-                {/* Optional: Show individual page numbers */}
+                {/* Render page numbers with ellipsis */}
                 <div className="flex gap-1">
-                    {[...Array(totalPages)].map((_, index) => (
+                    {generatePageNumbers().map((page, index) => (
                         <button
                             key={index}
-                            onClick={() => goToPage(index + 1)}
-                            className={`border border-slate-300 rounded-lg py-1 px-4 ${currentPage === index + 1 ? 'bg-slate-600 text-white' : ''}`}>
-                            {index + 1}
+                            onClick={() => (typeof page === 'number' ? goToPage(page) : null)}
+                            className={`border border-slate-300 rounded-lg py-1 px-4 ${currentPage === page ? 'bg-slate-600 text-white' : ''}`}
+                            disabled={page === '...'}>
+                            {page}
                         </button>
                     ))}
                 </div>

@@ -1,40 +1,97 @@
-import Paginator from '@/components/Paginator'
+'use client'
+
 import { ArrowRightIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid'
 import formatNumber from '@/lib/formatNumber'
 import formatDateTime from '@/lib/formatDateTime'
 import axios from '@/lib/axios'
+import { useState, useEffect } from 'react'
+import Pagination from '@/components/PaginateList'
 
-const JournalTable = ({ journals, handleChangePage, fetchJournals, notification }) => {
+const getCurrentDate = () => {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, '0') // Month is 0-indexed
+    const day = String(today.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+}
+
+const JournalTable = ({ cashBank, journalsByWarehouse, notification, fetchJournalsByWarehouse, user }) => {
+    const [selectedAccount, setSelectedAccount] = useState(null)
+    const [startDate, setStartDate] = useState(getCurrentDate())
+    const [endDate, setEndDate] = useState(getCurrentDate())
+    const [loading, setLoading] = useState(false)
+    const [currentPage, setCurrentPage] = useState(1)
+
+    const warehouse = user.role?.warehouse_id
+    const warehouseCash = user.role.warehouse.chart_of_account_id
+    const itemsPerPage = 10 // Number of items per page
+
     const handleDeleteJournal = async id => {
         try {
             const response = await axios.delete(`/api/journals/${id}`)
             notification(response.data.message)
-            fetchJournals()
+            fetchJournalsByWarehouse()
         } catch (error) {
             notification(error.response?.data?.message || 'Something went wrong.')
         }
     }
+
+    const branchAccount = cashBank.filter(cashBank => cashBank.warehouse_id === warehouse)
+    const filteredJournals = selectedAccount
+        ? journalsByWarehouse?.data?.filter(
+              journal => Number(journal.cred_code) === Number(selectedAccount) || Number(journal.debt_code) === Number(selectedAccount),
+          )
+        : journalsByWarehouse?.data || []
+
+    const totalItems = filteredJournals?.length || 0
+    const totalPages = Math.ceil(totalItems / itemsPerPage)
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const currentItems = filteredJournals.slice(startIndex, startIndex + itemsPerPage)
+
+    const handlePageChange = page => {
+        setCurrentPage(page)
+    }
+
     return (
-        <>
+        <div>
+            <div className="px-4 mb-4">
+                <select
+                    onChange={e => setSelectedAccount(e.target.value)}
+                    className="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    <option value="">Semua Akun</option>
+                    {branchAccount.map((account, index) => (
+                        <option key={index} value={account.id}>
+                            {account.acc_name}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
             <table className="table w-full text-xs">
-                <thead className="">
-                    <tr className="">
-                        <th className="">Keterangan</th>
+                <thead>
+                    <tr>
+                        <th>Keterangan</th>
                         <th>Jumlah</th>
                         <th className="hidden sm:table-cell">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {journals?.data?.length === 0 ? (
+                    {loading ? (
+                        <tr>
+                            <td colSpan="3" className="text-center">
+                                <span className="text-sm text-slate-500">Loading...</span>
+                            </td>
+                        </tr>
+                    ) : currentItems.length === 0 ? (
                         <tr>
                             <td colSpan="3" className="text-center">
                                 <span className="text-sm text-slate-500">Tidak ada transaksi</span>
                             </td>
                         </tr>
                     ) : (
-                        journals.data?.map((journal, index) => (
-                            <tr className="" key={index}>
-                                <td className="">
+                        currentItems.map((journal, index) => (
+                            <tr key={index}>
+                                <td>
                                     <span className="text-xs text-slate-500 block">
                                         {formatDateTime(journal.created_at)} | {journal.invoice} | {journal.trx_type}
                                     </span>
@@ -44,11 +101,13 @@ const JournalTable = ({ journals, handleChangePage, fetchJournals, notification 
                                     </span>
                                 </td>
                                 <td className="font-bold">
-                                    {formatNumber(journal.amount)}
+                                    <span className={`${Number(journal.debt_code) === Number(selectedAccount) ? 'text-green-500' : 'text-red-500'} text-lg`}>
+                                        {formatNumber(journal.amount)}
+                                    </span>
                                     {journal.fee_amount !== 0 && <span className="text-xs text-blue-600 block">{formatNumber(journal.fee_amount)}</span>}
                                 </td>
                                 <td className="hidden sm:table-cell">
-                                    <span className="flex justify-center">
+                                    <div className="flex justify-center">
                                         <button className="bg-indigo-500 hover:bg-indigo-600 py-2 px-4 rounded-lg text-white mr-2">
                                             <PencilIcon className="size-4" />
                                         </button>
@@ -57,15 +116,24 @@ const JournalTable = ({ journals, handleChangePage, fetchJournals, notification 
                                             className="bg-red-600 hover:bg-red-700 py-2 px-4 rounded-lg text-white">
                                             <TrashIcon className="size-4" />
                                         </button>
-                                    </span>
+                                    </div>
                                 </td>
                             </tr>
                         ))
                     )}
                 </tbody>
             </table>
-            {journals.last_page > 1 && <Paginator links={journals} handleChangePage={handleChangePage} />}
-        </>
+
+            {totalPages > 1 && (
+                <Pagination
+                    className="w-full px-4"
+                    totalItems={totalItems}
+                    itemsPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    onPageChange={handlePageChange}
+                />
+            )}
+        </div>
     )
 }
 

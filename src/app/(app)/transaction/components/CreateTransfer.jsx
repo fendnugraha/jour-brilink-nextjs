@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react'
 import axios from '@/lib/axios'
 import Label from '@/components/Label'
 import Input from '@/components/Input'
+import formatNumber from '@/lib/formatNumber'
 
-const CreateTransfer = ({ isModalOpen, notification, fetchJournals, user }) => {
+const CreateTransfer = ({ isModalOpen, notification, fetchJournalsByWarehouse, user }) => {
     const [cashBank, setCashBank] = useState([])
     const [formData, setFormData] = useState({
         debt_code: user.role.warehouse.chart_of_account_id,
@@ -16,6 +17,7 @@ const CreateTransfer = ({ isModalOpen, notification, fetchJournals, user }) => {
         custName: '',
     })
     const [errors, setErrors] = useState([])
+    const [loading, setLoading] = useState(false)
     const fetchCashBank = async () => {
         try {
             const response = await axios.get(`/api/get-cash-bank-by-warehouse/${user.role.warehouse_id}`)
@@ -31,6 +33,7 @@ const CreateTransfer = ({ isModalOpen, notification, fetchJournals, user }) => {
 
     const handleSubmit = async e => {
         e.preventDefault()
+        setLoading(true)
         try {
             const response = await axios.post('/api/create-transfer', formData)
             notification(response.data.message)
@@ -41,10 +44,12 @@ const CreateTransfer = ({ isModalOpen, notification, fetchJournals, user }) => {
                 description: '',
                 custName: '',
             })
-            fetchJournals()
+            fetchJournalsByWarehouse()
             isModalOpen(false)
         } catch (error) {
             setErrors(error.response.data.errors || ['Something went wrong.'])
+        } finally {
+            setLoading(false)
         }
     }
     return (
@@ -69,16 +74,23 @@ const CreateTransfer = ({ isModalOpen, notification, fetchJournals, user }) => {
                 </div>
                 <div className="mb-2 grid grid-cols-3 gap-4 items-center">
                     <Label>Jumlah transfer</Label>
-                    <div className="col-span-2">
-                        <Input type="number" placeholder="Rp." value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} />
+                    <div>
+                        <Input
+                            className="w-full"
+                            type="number"
+                            placeholder="Rp."
+                            value={formData.amount}
+                            onChange={e => setFormData({ ...formData, amount: e.target.value })}
+                        />
                         {errors.amount && <span className="text-red-500 text-xs">{errors.amount}</span>}
                     </div>
+                    <h1 className="text-lg font-bold">{formatNumber(formData.amount)}</h1>
                 </div>
                 <div className="mb-2 grid grid-cols-3 gap-4 items-center">
                     <Label>Fee (Admin)</Label>
-                    <div className="col-span-2">
+                    <div className="">
                         <Input
-                            className={'w-1/4'}
+                            className={'w-1/2'}
                             type="number"
                             placeholder="Rp."
                             value={formData.fee_amount}
@@ -86,6 +98,7 @@ const CreateTransfer = ({ isModalOpen, notification, fetchJournals, user }) => {
                         />
                         {errors.fee_amount && <span className="text-red-500 text-xs">{errors.fee_amount}</span>}
                     </div>
+                    <h1 className="text-lg font-bold">{formatNumber(formData.fee_amount)}</h1>
                 </div>
                 <div className="mb-2 grid grid-cols-3 gap-4 items-center">
                     <Label>Nama Rek. Customer</Label>
@@ -113,8 +126,11 @@ const CreateTransfer = ({ isModalOpen, notification, fetchJournals, user }) => {
                         {errors.description && <span className="text-red-500 text-xs">{errors.description}</span>}
                     </div>
                 </div>
-                <button onClick={handleSubmit} className="bg-indigo-500 hover:bg-indigo-600 rounded-xl px-8 py-3 text-white">
-                    Simpan
+                <button
+                    onClick={handleSubmit}
+                    className="bg-indigo-500 hover:bg-indigo-600 rounded-xl px-8 py-3 text-white disabled:bg-slate-300 disabled:cursor-not-allowed"
+                    disabled={loading}>
+                    {loading ? 'Loading...' : 'Simpan'}
                 </button>
             </form>
         </>

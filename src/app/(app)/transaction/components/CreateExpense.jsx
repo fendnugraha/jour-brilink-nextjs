@@ -4,7 +4,7 @@ import axios from '@/lib/axios'
 import Label from '@/components/Label'
 import Input from '@/components/Input'
 
-const CreateExpense = ({ isModalOpen, notification, fetchJournals, user }) => {
+const CreateExpense = ({ isModalOpen, notification, fetchJournalsByWarehouse, user }) => {
     const [expense, setExpense] = useState([])
     const [formData, setFormData] = useState({
         debt_code: '',
@@ -36,7 +36,7 @@ const CreateExpense = ({ isModalOpen, notification, fetchJournals, user }) => {
         try {
             const response = await axios.post('/api/create-mutation', formData)
             notification(response.data.message)
-            fetchJournals()
+            fetchJournalsByWarehouse()
             setFormData({
                 debt_code: '',
                 cred_code: user.role.warehouse.chart_of_account_id,
