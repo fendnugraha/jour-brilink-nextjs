@@ -1,10 +1,10 @@
 'use client'
 
-import { ArrowRightIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid'
+import { ArrowRightIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/solid'
 import formatNumber from '@/lib/formatNumber'
 import formatDateTime from '@/lib/formatDateTime'
 import axios from '@/lib/axios'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Pagination from '@/components/PaginateList'
 
 const getCurrentDate = () => {
@@ -24,7 +24,7 @@ const JournalTable = ({ cashBank, journalsByWarehouse, notification, fetchJourna
 
     const warehouse = user.role?.warehouse_id
     const warehouseCash = user.role.warehouse.chart_of_account_id
-    const itemsPerPage = 10 // Number of items per page
+    const itemsPerPage = 5 // Number of items per page
 
     const handleDeleteJournal = async id => {
         try {
@@ -93,28 +93,27 @@ const JournalTable = ({ cashBank, journalsByWarehouse, notification, fetchJourna
                             <tr key={index}>
                                 <td>
                                     <span className="text-xs text-slate-500 block">
-                                        {formatDateTime(journal.created_at)} | {journal.invoice} | {journal.trx_type}
+                                        {formatDateTime(journal.created_at)} | {journal.invoice}
                                     </span>
-                                    ID: {journal.id} {journal.description}
+                                    Note: {journal.description}
                                     <span className="block font-bold text-xs">
                                         {journal.cred.acc_name} <ArrowRightIcon className="size-4 inline" /> {journal.debt.acc_name}
                                     </span>
                                 </td>
                                 <td className="font-bold">
-                                    <span className={`${Number(journal.debt_code) === Number(selectedAccount) ? 'text-green-500' : 'text-red-500'} text-lg`}>
+                                    <span
+                                        className={`${Number(journal.debt_code) === Number(selectedAccount) ? 'text-green-500' : 'text-red-500'} text-sm md:text-base sm:text-lg`}>
                                         {formatNumber(journal.amount)}
                                     </span>
                                     {journal.fee_amount !== 0 && <span className="text-xs text-blue-600 block">{formatNumber(journal.fee_amount)}</span>}
                                 </td>
                                 <td className="hidden sm:table-cell">
-                                    <div className="flex justify-center">
-                                        <button className="bg-indigo-500 hover:bg-indigo-600 py-2 px-4 rounded-lg text-white mr-2">
-                                            <PencilIcon className="size-4" />
+                                    <div className="flex justify-center gap-3">
+                                        <button className="">
+                                            <PencilSquareIcon className="size-4 text-indigo-700" />
                                         </button>
-                                        <button
-                                            onClick={() => handleDeleteJournal(journal.id)}
-                                            className="bg-red-600 hover:bg-red-700 py-2 px-4 rounded-lg text-white">
-                                            <TrashIcon className="size-4" />
+                                        <button onClick={() => handleDeleteJournal(journal.id)} className="">
+                                            <TrashIcon className="size-4 text-red-600" />
                                         </button>
                                     </div>
                                 </td>

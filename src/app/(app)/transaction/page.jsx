@@ -107,7 +107,7 @@ const TransactionPage = () => {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     {notification && <Notification notification={notification} onClose={() => setNotification('')} />}
-                    <div className="overflow-hidden shadow-sm sm:rounded-lg">
+                    <div className="overflow-hidden sm:rounded-lg">
                         <div className="mb-2 flex justify-start gap-2">
                             <button
                                 onClick={() => setIsModalCreateTransferOpen(true)}
