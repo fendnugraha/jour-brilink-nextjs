@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRightIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/solid'
+import { ArrowRightIcon, FunnelIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/solid'
 import formatNumber from '@/lib/formatNumber'
 import formatDateTime from '@/lib/formatDateTime'
 import axios from '@/lib/axios'
@@ -54,10 +54,13 @@ const JournalTable = ({ cashBank, journalsByWarehouse, notification, fetchJourna
 
     return (
         <div>
-            <div className="px-4 mb-4">
+            <div className="px-4 mb-4 flex justify-start items-center gap-2 w-full">
                 <select
-                    onChange={e => setSelectedAccount(e.target.value)}
-                    className="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    onChange={e => {
+                        setSelectedAccount(e.target.value)
+                        setCurrentPage(1)
+                    }}
+                    className="rounded-md w-1/2 border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                     <option value="">Semua Akun</option>
                     {branchAccount.map((account, index) => (
                         <option key={index} value={account.id}>
@@ -65,6 +68,9 @@ const JournalTable = ({ cashBank, journalsByWarehouse, notification, fetchJourna
                         </option>
                     ))}
                 </select>
+                <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-lg">
+                    <FunnelIcon className="size-5" />
+                </button>
             </div>
 
             <table className="table w-full text-xs">
@@ -93,7 +99,7 @@ const JournalTable = ({ cashBank, journalsByWarehouse, notification, fetchJourna
                             <tr key={index}>
                                 <td>
                                     <span className="text-xs text-slate-500 block">
-                                        {formatDateTime(journal.created_at)} | {journal.invoice}
+                                        {journal.invoice} | {formatDateTime(journal.created_at)}
                                     </span>
                                     Note: {journal.description}
                                     <span className="block font-bold text-xs">
@@ -102,7 +108,9 @@ const JournalTable = ({ cashBank, journalsByWarehouse, notification, fetchJourna
                                 </td>
                                 <td className="font-bold">
                                     <span
-                                        className={`${Number(journal.debt_code) === Number(selectedAccount) ? 'text-green-500' : 'text-red-500'} text-sm md:text-base sm:text-lg`}>
+                                        className={`${Number(journal.debt_code) === Number(selectedAccount) ? 'text-green-500' : ''}
+                                    ${Number(journal.cred_code) === Number(selectedAccount) ? 'text-red-500' : ''}
+                                        text-sm md:text-base sm:text-lg`}>
                                         {formatNumber(journal.amount)}
                                     </span>
                                     {journal.fee_amount !== 0 && <span className="text-xs text-blue-600 block">{formatNumber(journal.fee_amount)}</span>}
@@ -110,10 +118,10 @@ const JournalTable = ({ cashBank, journalsByWarehouse, notification, fetchJourna
                                 <td className="hidden sm:table-cell">
                                     <div className="flex justify-center gap-3">
                                         <button className="">
-                                            <PencilSquareIcon className="size-4 text-indigo-700" />
+                                            <PencilSquareIcon className="size-4 text-indigo-700 hover:scale-125 transtition-all duration-200" />
                                         </button>
                                         <button onClick={() => handleDeleteJournal(journal.id)} className="">
-                                            <TrashIcon className="size-4 text-red-600" />
+                                            <TrashIcon className="size-4 text-red-600 hover:scale-125 transtition-all duration-200" />
                                         </button>
                                     </div>
                                 </td>

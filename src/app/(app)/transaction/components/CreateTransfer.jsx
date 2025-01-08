@@ -5,8 +5,7 @@ import Label from '@/components/Label'
 import Input from '@/components/Input'
 import formatNumber from '@/lib/formatNumber'
 
-const CreateTransfer = ({ isModalOpen, notification, fetchJournalsByWarehouse, user }) => {
-    const [cashBank, setCashBank] = useState([])
+const CreateTransfer = ({ isModalOpen, filteredCashBankByWarehouse, notification, fetchJournalsByWarehouse, user }) => {
     const [formData, setFormData] = useState({
         debt_code: user.role.warehouse.chart_of_account_id,
         cred_code: '',
@@ -18,18 +17,6 @@ const CreateTransfer = ({ isModalOpen, notification, fetchJournalsByWarehouse, u
     })
     const [errors, setErrors] = useState([])
     const [loading, setLoading] = useState(false)
-    const fetchCashBank = async () => {
-        try {
-            const response = await axios.get(`/api/get-cash-bank-by-warehouse/${user.role.warehouse_id}`)
-            setCashBank(response.data.data) // Commented out as it's not used
-        } catch (error) {
-            notification(error.response?.data?.message || 'Something went wrong.')
-        }
-    }
-
-    useEffect(() => {
-        fetchCashBank()
-    }, [])
 
     const handleSubmit = async e => {
         e.preventDefault()
@@ -63,7 +50,7 @@ const CreateTransfer = ({ isModalOpen, notification, fetchJournalsByWarehouse, u
                             value={formData.cred_code}
                             className="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             <option value="">--Pilih Rekening--</option>
-                            {cashBank.map(cashBank => (
+                            {filteredCashBankByWarehouse.map(cashBank => (
                                 <option key={cashBank.id} value={cashBank.id}>
                                     {cashBank.acc_name}
                                 </option>

@@ -17,6 +17,7 @@ import CreateMutationToHq from './components/CreateMutationToHq'
 import CreateBankAdminFee from './components/CreateBankAdminFee'
 import CreateExpense from './components/CreateExpense'
 import CashBankBalance from './components/CashBankBalance'
+import formatNumber from '@/lib/formatNumber'
 
 const getCurrentDate = () => {
     const today = new Date()
@@ -31,10 +32,10 @@ const TransactionPage = () => {
     if (!user) {
         return <Loading />
     }
-    const [journals, setJournals] = useState([])
     const [journalsByWarehouse, setJournalsByWarehouse] = useState([])
     const [loading, setLoading] = useState(false)
     const [cashBank, setCashBank] = useState([])
+    const [accountBalance, setAccountBalance] = useState([])
     const [isModalCreateTransferOpen, setIsModalCreateTransferOpen] = useState(false)
     const [isModalCreateCashWithdrawalOpen, setIsModalCreateCashWithdrawalOpen] = useState(false)
     const [isModalCreateDepositOpen, setIsModalCreateDepositOpen] = useState(false)
@@ -43,6 +44,9 @@ const TransactionPage = () => {
     const [isModalCreateBankAdminFeeOpen, setIsModalCreateBankAdminFeeOpen] = useState(false)
     const [isModalCreateMutationToHqOpen, setIsModalCreateMutationToHqOpen] = useState(false)
     const [notification, setNotification] = useState('')
+    const getDailyDashboard = () => JSON.parse(localStorage.getItem('dailyDashboard')) || []
+    const [dailyDashboard, setDailyDashboard] = useState(getDailyDashboard)
+
     const closeModal = () => {
         setIsModalCreateTransferOpen(false)
         setIsModalCreateCashWithdrawalOpen(false)
@@ -55,22 +59,6 @@ const TransactionPage = () => {
     const warehouse = user.role?.warehouse_id
     const [startDate, setStartDate] = useState(getCurrentDate())
     const [endDate, setEndDate] = useState(getCurrentDate())
-    const fetchJournals = async (url = '/api/journals') => {
-        try {
-            const response = await axios.get(url)
-            setJournals(response.data.data)
-        } catch (error) {
-            setNotification(error.response?.data?.message || 'Something went wrong.')
-        }
-    }
-
-    useEffect(() => {
-        fetchJournals()
-    }, [])
-
-    const handleChangePage = url => {
-        fetchJournals(url)
-    }
 
     const fetchJournalsByWarehouse = async () => {
         setLoading(true)
@@ -89,6 +77,22 @@ const TransactionPage = () => {
         fetchJournalsByWarehouse()
     }, [])
 
+    const getAccountBalance = async () => {
+        setLoading(true)
+        try {
+            const response = await axios.get(`/api/get-cash-bank-balance/${warehouse}`)
+            setAccountBalance(response.data.data)
+        } catch (error) {
+            setErrors(error.response?.data?.errors || ['Something went wrong.'])
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        getAccountBalance()
+    }, [journalsByWarehouse])
+
     const fetchCashBank = async () => {
         try {
             const response = await axios.get(`/api/get-cash-and-bank`)
@@ -101,11 +105,13 @@ const TransactionPage = () => {
     useEffect(() => {
         fetchCashBank()
     }, [])
+
+    const filteredCashBankByWarehouse = cashBank.filter(cashBank => cashBank.warehouse_id === user.role.warehouse_id)
     return (
         <>
             <Header title="Transaction" />
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div className="py-8">
+                <div className="max-w-7xl mx-auto sm:px-6">
                     {notification && <Notification notification={notification} onClose={() => setNotification('')} />}
                     <div className="overflow-hidden sm:rounded-lg">
                         <div className="mb-2 flex justify-start gap-2">
@@ -116,6 +122,7 @@ const TransactionPage = () => {
                             </button>
                             <Modal isOpen={isModalCreateTransferOpen} onClose={closeModal} modalTitle="Transfer Uang">
                                 <CreateTransfer
+                                    filteredCashBankByWarehouse={filteredCashBankByWarehouse}
                                     isModalOpen={setIsModalCreateTransferOpen}
                                     notification={message => setNotification(message)}
                                     fetchJournalsByWarehouse={fetchJournalsByWarehouse}
@@ -129,6 +136,7 @@ const TransactionPage = () => {
                             </button>
                             <Modal isOpen={isModalCreateCashWithdrawalOpen} onClose={closeModal} modalTitle="Tarik Tunai">
                                 <CreateCashWithdrawal
+                                    filteredCashBankByWarehouse={filteredCashBankByWarehouse}
                                     isModalOpen={setIsModalCreateCashWithdrawalOpen}
                                     notification={message => setNotification(message)}
                                     fetchJournalsByWarehouse={fetchJournalsByWarehouse}
@@ -153,6 +161,7 @@ const TransactionPage = () => {
                             {/* Expenses */}
                             <Modal isOpen={isModalCreateMutationToHqOpen} onClose={closeModal} modalTitle="Pengembalian Saldo Kas & Bank">
                                 <CreateMutationToHq
+                                    cashBank={cashBank}
                                     isModalOpen={setIsModalCreateMutationToHqOpen}
                                     notification={message => setNotification(message)}
                                     fetchJournalsByWarehouse={fetchJournalsByWarehouse}
@@ -161,10 +170,10 @@ const TransactionPage = () => {
                             </Modal>
                             <Modal isOpen={isModalCreateBankAdminFeeOpen} onClose={closeModal} modalTitle="Biaya Administrasi Bank">
                                 <CreateBankAdminFee
+                                    filteredCashBankByWarehouse={filteredCashBankByWarehouse}
                                     isModalOpen={setIsModalCreateBankAdminFeeOpen}
                                     notification={message => setNotification(message)}
                                     fetchJournalsByWarehouse={fetchJournalsByWarehouse}
-                                    user={user}
                                 />
                             </Modal>
                             <Modal isOpen={isModalCreateExpenseOpen} onClose={closeModal} modalTitle="Biaya Operasional">
@@ -216,17 +225,17 @@ const TransactionPage = () => {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                             <div className="col-span-3 bg-white py-6 rounded-2xl">
+                                <h1 className="text-red-500">Profit: {formatNumber(dailyDashboard?.profit)} </h1>
                                 <JournalTable
                                     cashBank={cashBank}
                                     journalsByWarehouse={journalsByWarehouse}
-                                    handleChangePage={handleChangePage}
                                     fetchJournalsByWarehouse={fetchJournalsByWarehouse}
                                     notification={message => setNotification(message)}
                                     user={user}
                                 />
                             </div>
                             <div>
-                                <CashBankBalance warehouse={warehouse} fetchJournalsByWarehouse={fetchJournalsByWarehouse} />
+                                <CashBankBalance warehouse={warehouse} accountBalance={accountBalance} />
                             </div>
                         </div>
                     </div>

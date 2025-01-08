@@ -40,8 +40,10 @@ const CreateExpense = ({ isModalOpen, notification, fetchJournalsByWarehouse, us
             setFormData({
                 debt_code: '',
                 cred_code: user.role.warehouse.chart_of_account_id,
+                amount: 0,
                 fee_amount: '',
-                description: '',
+                trx_type: 'Pengeluaran',
+                description: 'Biaya Operasional Toko',
             })
         } catch (error) {
             setErrors(error.response?.data?.errors || ['Something went wrong.'])

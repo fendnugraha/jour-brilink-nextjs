@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react'
 import axios from '@/lib/axios'
 import Label from '@/components/Label'
 import Input from '@/components/Input'
+import formatNumber from '@/lib/formatNumber'
 
-const CreateCashWithdrawal = ({ isModalOpen, notification, fetchJournalsByWarehouse, user }) => {
-    const [cashBank, setCashBank] = useState([])
+const CreateCashWithdrawal = ({ isModalOpen, filteredCashBankByWarehouse, notification, fetchJournalsByWarehouse, user }) => {
     const [formData, setFormData] = useState({
         debt_code: '',
         cred_code: user.role.warehouse.chart_of_account_id,
@@ -17,18 +17,6 @@ const CreateCashWithdrawal = ({ isModalOpen, notification, fetchJournalsByWareho
     })
     const [errors, setErrors] = useState([])
     const [loading, setLoading] = useState(false)
-    const fetchCashBank = async () => {
-        try {
-            const response = await axios.get(`/api/get-cash-bank-by-warehouse/${user.role.warehouse_id}`)
-            setCashBank(response.data.data) // Commented out as it's not used
-        } catch (error) {
-            notification(error.response?.data?.message || 'Something went wrong.')
-        }
-    }
-
-    useEffect(() => {
-        fetchCashBank()
-    }, [])
 
     const handleSubmit = async e => {
         e.preventDefault()
@@ -62,7 +50,7 @@ const CreateCashWithdrawal = ({ isModalOpen, notification, fetchJournalsByWareho
                             value={formData.debt_code}
                             className="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             <option value="">--Pilih Rekening--</option>
-                            {cashBank.map(cashBank => (
+                            {filteredCashBankByWarehouse.map(cashBank => (
                                 <option key={cashBank.id} value={cashBank.id}>
                                     {cashBank.acc_name}
                                 </option>
@@ -73,16 +61,23 @@ const CreateCashWithdrawal = ({ isModalOpen, notification, fetchJournalsByWareho
                 </div>
                 <div className="mb-2 grid grid-cols-3 gap-4 items-center">
                     <Label>Jumlah Penarikan</Label>
-                    <div className="col-span-2">
-                        <Input type="number" placeholder="Rp." value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} />
+                    <div className="col-span-1">
+                        <Input
+                            className={'w-full'}
+                            type="number"
+                            placeholder="Rp."
+                            value={formData.amount}
+                            onChange={e => setFormData({ ...formData, amount: e.target.value })}
+                        />
                         {errors.amount && <span className="text-red-500 text-xs">{errors.amount}</span>}
                     </div>
+                    <h1 className="text-lg font-bold">{formatNumber(formData.amount)}</h1>
                 </div>
                 <div className="mb-2 grid grid-cols-3 gap-4 items-center">
                     <Label>Fee (Admin)</Label>
-                    <div className="col-span-2">
+                    <div className="col-span-1">
                         <Input
-                            className={'w-1/4'}
+                            className={'w-1/2'}
                             type="number"
                             placeholder="Rp."
                             value={formData.fee_amount}
@@ -90,6 +85,7 @@ const CreateCashWithdrawal = ({ isModalOpen, notification, fetchJournalsByWareho
                         />
                         {errors.fee_amount && <span className="text-red-500 text-xs">{errors.fee_amount}</span>}
                     </div>
+                    <h1 className="text-lg font-bold">{formatNumber(formData.fee_amount)}</h1>
                 </div>
                 <div className="mb-2 grid grid-cols-3 gap-4 items-center">
                     <Label>Keterangan</Label>

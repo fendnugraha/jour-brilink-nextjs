@@ -4,8 +4,7 @@ import axios from '@/lib/axios'
 import Label from '@/components/Label'
 import Input from '@/components/Input'
 
-const CreateBankAdminFee = ({ isModalOpen, notification, fetchJournals, user }) => {
-    const [cashBank, setCashBank] = useState([])
+const CreateBankAdminFee = ({ isModalOpen, filteredCashBankByWarehouse, notification, fetchJournalsByWarehouse }) => {
     const [formData, setFormData] = useState({
         debt_code: 49,
         cred_code: '',
@@ -16,18 +15,6 @@ const CreateBankAdminFee = ({ isModalOpen, notification, fetchJournals, user }) 
     })
     const [errors, setErrors] = useState([])
     const [loading, setLoading] = useState(false)
-    const fetchCashBank = async () => {
-        try {
-            const response = await axios.get(`/api/get-cash-bank-by-warehouse/${user.role.warehouse_id}`)
-            setCashBank(response.data.data) // Commented out as it's not used
-        } catch (error) {
-            notification(error.response?.data?.message || 'Something went wrong.')
-        }
-    }
-
-    useEffect(() => {
-        fetchCashBank()
-    }, [])
 
     const handleSubmit = async e => {
         e.preventDefault()
@@ -36,14 +23,18 @@ const CreateBankAdminFee = ({ isModalOpen, notification, fetchJournals, user }) 
             const response = await axios.post('/api/create-mutation', formData)
             notification(response.data.message)
             setFormData({
+                debt_code: 49,
                 cred_code: '',
                 amount: '',
-                description: '',
+                fee_amount: '',
+                trx_type: 'Pengeluaran',
+                description: 'Biaya Administrasi Bank',
             })
-            fetchJournals()
+            fetchJournalsByWarehouse()
             isModalOpen(false)
         } catch (error) {
             setErrors(error.response.data.errors || ['Something went wrong.'])
+            notification(error.response?.data?.message || 'Something went wrong.')
         } finally {
             setLoading(false)
         }
@@ -59,7 +50,7 @@ const CreateBankAdminFee = ({ isModalOpen, notification, fetchJournals, user }) 
                             value={formData.cred_code}
                             className="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             <option value="">--Pilih Rekening--</option>
-                            {cashBank.map(cashBank => (
+                            {filteredCashBankByWarehouse.map(cashBank => (
                                 <option key={cashBank.id} value={cashBank.id}>
                                     {cashBank.acc_name}
                                 </option>

@@ -4,7 +4,7 @@ import axios from '@/lib/axios'
 import Label from '@/components/Label'
 import Input from '@/components/Input'
 
-const CreateMutationToHq = ({ isModalOpen, cashBank, notification, fetchJournalsByWarehouse, user }) => {
+const CreateMutationFromHq = ({ isModalOpen, cashBank, notification, fetchJournalsByWarehouse, warehouses }) => {
     const [formData, setFormData] = useState({
         debt_code: '',
         cred_code: '',
@@ -13,11 +13,13 @@ const CreateMutationToHq = ({ isModalOpen, cashBank, notification, fetchJournals
         trx_type: 'Mutasi Kas',
         description: '',
     })
+    const [selectedWarehouseId, setSelectedWarehouseId] = useState(null)
+
     const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState([])
 
     const hqAccount = cashBank.filter(cashBank => cashBank.warehouse_id === 1)
-    const branchAccount = cashBank.filter(cashBank => cashBank.warehouse_id === user.role?.warehouse_id)
+    const branchAccount = cashBank.filter(cashBank => cashBank.warehouse_id === Number(selectedWarehouseId))
 
     const handleSubmit = async e => {
         e.preventDefault()
@@ -34,17 +36,18 @@ const CreateMutationToHq = ({ isModalOpen, cashBank, notification, fetchJournals
             setLoading(false)
         }
     }
+
     return (
         <form>
             <div className="mb-2 grid grid-cols-3 gap-4 items-center">
-                <Label>Dari (Cabang)</Label>
+                <Label>Dari (Pusat)</Label>
                 <div className="col-span-2">
                     <select
                         onChange={e => setFormData({ ...formData, cred_code: e.target.value })}
                         value={formData.cred_code}
                         className="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                         <option value="">--Pilih sumber dana--</option>
-                        {branchAccount.map(br => (
+                        {hqAccount.map(br => (
                             <option key={br.id} value={br.id}>
                                 {br.acc_name}
                             </option>
@@ -54,14 +57,32 @@ const CreateMutationToHq = ({ isModalOpen, cashBank, notification, fetchJournals
                 </div>
             </div>
             <div className="mb-2 grid grid-cols-3 gap-4 items-center">
-                <Label>Ke (Pusat)</Label>
+                <Label>Pilih Cabang</Label>
+                <div className="col-span-2">
+                    <select
+                        onChange={e => setSelectedWarehouseId(e.target.value)}
+                        value={selectedWarehouseId}
+                        className="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <option value="">--Pilih cabang tujuan mutasi--</option>
+                        {warehouses?.map(wh => (
+                            <option key={wh.id} value={wh.id}>
+                                {wh.name}
+                            </option>
+                        ))}
+                    </select>
+                    {errors.debt_code && <span className="text-red-500 text-xs">{errors.debt_code}</span>}
+                </div>
+            </div>
+            <div className="mb-2 grid grid-cols-3 gap-4 items-center">
+                <Label>Ke (Cabang)</Label>
                 <div className="col-span-2">
                     <select
                         onChange={e => setFormData({ ...formData, debt_code: e.target.value })}
                         value={formData.debt_code}
-                        className="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        className="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                        disabled={!selectedWarehouseId}>
                         <option value="">--Pilih tujuan mutasi--</option>
-                        {hqAccount.map(hq => (
+                        {branchAccount.map(hq => (
                             <option key={hq.id} value={hq.id}>
                                 {hq.acc_name}
                             </option>
@@ -100,4 +121,4 @@ const CreateMutationToHq = ({ isModalOpen, cashBank, notification, fetchJournals
     )
 }
 
-export default CreateMutationToHq
+export default CreateMutationFromHq
